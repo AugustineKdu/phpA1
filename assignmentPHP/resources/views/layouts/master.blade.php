@@ -39,9 +39,9 @@
             <a class="navbar-brand" href="#">Home</a>
         </nav>
         <div class="sub-menu text-center">
-            <a href="#">Home</a> |
+            <a href="/">Home</a> |
             <a href="#">Login</a> |
-            <a href="#">Post</a>
+            <a href="/create-post">Create Post</a>
         </div>
     </header>
 
