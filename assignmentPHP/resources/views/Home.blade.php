@@ -9,23 +9,17 @@
                 <h2>Recent Posts</h2>
 
                 @foreach($posts as $post)
-                    <div class="card mb-3">
+                    <div class="card mb-3 clickable" onclick="window.location='/post/{{ $post->id }}';">
                         <div class="card-body">
-
-                            <h5 class="card-title">{{ $post->title }}</h5>
+                           <h5 class="card-title">{{ $post->title }}</h5>
                             <p class="card-text">{{ $post->message }}</p>
                             <p class="card-text"><small class="text-muted">Posted by {{ $post->author }} on {{ $post->date }}</small></p>
-
-                            <h6>Comments:</h6>
-                            <ul>
-                                @foreach($comments[$post->id] as $comment)
-                                    <li>{{ $comment->author }}: {{ $comment->message }}</li>
-                                @endforeach
-                            </ul>
+                            <p class="card-text">Total Comments: {{ count($comments[$post->id]) }}</p>
+                            <!-- Here is where we display the like count -->
+                            <p class="card-text">Likes: {{ $post->like_count ?? '0' }}</p>
                         </div>
                     </div>
                 @endforeach
-
             </div>
         </div>
     </div>

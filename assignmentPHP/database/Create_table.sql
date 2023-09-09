@@ -1,10 +1,6 @@
--- Drop the Posts table if it exists
+-- Drop the existing tables
 DROP TABLE IF EXISTS Posts;
-
--- Drop the Comments table if it exists
 DROP TABLE IF EXISTS Comments;
-
--- Drop the Likes table if it exists (optional)
 DROP TABLE IF EXISTS Likes;
 
 -- Create the Posts table
@@ -14,7 +10,7 @@ CREATE TABLE Posts (
     author TEXT NOT NULL,
     message TEXT NOT NULL,
     date TEXT NOT NULL,
-    image_path TEXT
+    like_count INTEGER DEFAULT 0  -- New column for like count
 );
 
 -- Create the Comments table
@@ -28,7 +24,7 @@ CREATE TABLE Comments (
     FOREIGN KEY (post_id) REFERENCES Posts(id)
 );
 
--- Create the Likes table (optional)
+-- Create the Likes table
 CREATE TABLE Likes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     post_id INTEGER NOT NULL,
@@ -36,16 +32,19 @@ CREATE TABLE Likes (
     FOREIGN KEY (post_id) REFERENCES Posts(id)
 );
 
--- Insert sample data
-INSERT INTO Posts (title, author, message, date, image_path) VALUES
-('First Post', 'John', 'This is my first post.', datetime('now'), '/images/first_post.jpg'),
-('Second Post', 'Jane', 'Hello, world!', datetime('now'), '/images/second_post.jpg');
+-- Insert sample data into Posts with initial like counts
+INSERT INTO Posts (title, author, message, date, like_count) VALUES
+('First Post', 'John', 'This is my first post.', datetime('now'), 3),
+('Second Post', 'Jane', 'Hello, world!', datetime('now'), 5);
 
+
+-- Insert sample data into Comments
 INSERT INTO Comments (post_id, author, message, date, parent_comment_id) VALUES
 (1, 'Jane', 'Great post, John!', datetime('now'), NULL),
 (1, 'John', 'Thank you, Jane!', datetime('now'), 1),
 (2, 'Emily', 'Interesting!', datetime('now'), NULL);
 
+-- Insert sample data into Likes
 INSERT INTO Likes (post_id, author) VALUES
 (1, 'Emily'),
 (2, 'John');

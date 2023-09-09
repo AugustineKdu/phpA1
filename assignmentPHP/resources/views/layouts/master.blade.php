@@ -64,10 +64,12 @@
     </div>
 
     <footer class="footer mt-auto py-3 bg-dark">
-        <div class="container">
-            <span class="text-muted">Place for footer content</span>
-        </div>
-    </footer>
+    <div class="container d-flex justify-content-between">
+        <span class="text-muted">@Created by Augustine Kim (s5125270)</span>
+        <a href="/admin" class="text-muted">Admin Portal</a>
+    </div>
+</footer>
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

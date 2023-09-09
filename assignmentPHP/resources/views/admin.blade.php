@@ -13,6 +13,7 @@
                 <th>Message</th>
                 <th>Date</th>
                 <th>Comments</th>
+                <th>Like count</th>
             </tr>
         </thead>
         <tbody>
@@ -23,6 +24,7 @@
                 <td>{{ $post->author }}</td>
                 <td>{{ $post->message }}</td>
                 <td>{{ $post->date }}</td>
+
                 <td>
                     <ul>
                         @foreach ($comments[$post->id] as $comment)
@@ -30,6 +32,7 @@
                         @endforeach
                     </ul>
                 </td>
+
             </tr>
             @endforeach
         </tbody>
