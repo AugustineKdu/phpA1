@@ -4,84 +4,47 @@
 
 @section('content')
 <div class="container mt-5">
-    <h2>Search</h2>
+    <h2>Search User</h2>
     <form action="/search" method="GET">
-        <input type="text" name="query" placeholder="Search">
+        <input type="text" name="query" placeholder="Search by username">
         <button type="submit">Search</button>
     </form>
 
-    <div class="row mt-5">
-        <div class="col-md-3">
-            <h3>Matching Posts</h3>
-            <table class="table">
-                <thead>
+    @if(isset($query))
+        <table class="table mt-5">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Posts</th>
+                    <th>Comments</th>
+                    <th>Liked Posts</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($users as $user)
                     <tr>
-                        <th>Title</th>
+                        <td>{{ $user->username }}</td>
+                        <td>
+                            @foreach($user->posts as $post)
+                                {{ $post->title }} ({{ $post->date }})
+                            @endforeach
+                        </td>
+                        <td>
+                            @foreach($user->comments as $comment)
+                                {{ $comment->message }} ({{ $comment->date }})
+                            @endforeach
+                        </td>
+                        <td>
+                            @foreach($user->likedPosts as $likedPost)
+                                {{ $likedPost->title }}
+                            @endforeach
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach($posts as $post)
-                        <tr>
-                            <td>{{ $post->title }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-
-        <div class="col-md-3">
-            <h3>Matching Users</h3>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Username</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($users as $user)
-                        <tr>
-                            <td>{{ $user->username }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-
-        <div class="col-md-3">
-            <h3>Matching Comments</h3>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Comment</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($comments as $comment)
-                        <tr>
-                            <td>{{ $comment->message }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-
-        <div class="col-md-3">
-            <h3>Liked Posts</h3>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Title</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($likedPosts as $likedPost)
-                        <tr>
-                            <td>{{ $likedPost->title }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    </div>
+                @endforeach
+            </tbody>
+        </table>
+    @else
+        <p>No search query entered.</p>
+    @endif
 </div>
 @endsection
