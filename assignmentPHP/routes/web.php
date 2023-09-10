@@ -37,11 +37,26 @@ Route::get('/', function () {
 // Section: Posts Management
 
 // Create a post
+
 Route::post('/create-post', function (Request $request) {
     // Input validation
     $title = htmlentities($request->input('title'));
     $message = htmlentities($request->input('message'));
     $username = htmlentities($request->input('username'));
+
+    $validator = Validator::make($request->all(), [
+        'title' => 'required|min:3',
+        'username' => 'required|alpha',
+        'message' => 'required|min:5|regex:/\b\w+\b/',
+    ], [
+        'title.min' => 'The title must be at least 3 characters.',
+        'username.alpha' => 'The author name must not contain numbers.',
+        'message.regex' => 'The message must contain at least 5 words.',
+    ]);
+
+    if ($validator->fails()) {
+        return redirect('/')->withErrors($validator)->withInput();
+    }
 
     if (empty($title) || empty($message) || empty($username)) {
         return redirect('/')->with('error', 'All fields are required');
@@ -56,7 +71,6 @@ Route::post('/create-post', function (Request $request) {
 
     return redirect('/');
 });
-
 // Add a comment
 Route::post('/post/{post_id}/comment', function (Request $request, $post_id) {
     // Input validation
@@ -189,7 +203,7 @@ Route::get('/admin-login', function () {
 // Admin login processing
 Route::post('/admin-login', function (Request $request) {
     $username = $request->input('username');
-    $password = $request->input('password'); // In practice, encryption is needed.
+    $password = $request->input('password');
 
     // Assumption: admin ID is 1, and the name is 'admin'.
     if ($username === 'admin' && $password === 'admin') {

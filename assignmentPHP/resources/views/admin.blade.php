@@ -1,15 +1,14 @@
-<!-- 어드민 대시보드 -->
 @extends('layouts.master')
 
 @section('navbar-title', 'Admin Dashboard')
 
 @section('content')
-<div class="container mt-5">
+<div class="container mt-5" style="color: #FFFFFF;">
     <h1 class="mb-4">Admin Dashboard</h1>
 
-    <!-- 사용자 목록 -->
+    <!-- User List -->
     <h2>Users</h2>
-    <table class="table">
+    <table class="table" style="color: #FFFFFF;">
         <thead>
             <tr>
                 <th>Username</th>
@@ -31,9 +30,9 @@
         </tbody>
     </table>
 
-    <!-- 게시물 목록 -->
+    <!-- Post list -->
     <h2>Posts</h2>
-    <table class="table">
+    <table class="table" style="color: #FFFFFF;">
         <thead>
             <tr>
                 <th>Title</th>
@@ -55,9 +54,9 @@
         </tbody>
     </table>
 
-    <!-- 댓글 목록 -->
+    <!-- Comment List -->
     <h2>Comments</h2>
-    <table class="table">
+    <table class="table" style="color: #FFFFFF;">
         <thead>
             <tr>
                 <th>Message</th>

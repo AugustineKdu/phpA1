@@ -3,7 +3,7 @@
 @section('navbar-title', 'Search ')
 
 @section('content')
-<div class="container mt-5">
+<div class="container mt-5" style="color: #FFFFFF;">
     <h2>Search User</h2>
     <form action="/search" method="GET">
         <input type="text" name="query" placeholder="Search by username">
@@ -11,7 +11,7 @@
     </form>
 
     @if(isset($query))
-        <table class="table mt-5">
+        <table class="table mt-5" style="color: #FFFFFF;">
             <thead>
                 <tr>
                     <th>Username</th>

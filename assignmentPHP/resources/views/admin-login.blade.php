@@ -1,11 +1,9 @@
-
-<!-- search.blade.php -->
 @extends('layouts.master')
 
 @section('navbar-title', 'Admin Dashboard')
 
 @section('content')
-<!-- 어드민 로그인 폼 -->
+<!-- Admin login form -->
 <form method="POST" action="/admin-login">
     @csrf
     <label for="username">Username</label>
