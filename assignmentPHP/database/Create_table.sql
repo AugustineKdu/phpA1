@@ -1,51 +1,64 @@
--- Drop the existing tables
-DROP TABLE IF EXISTS Posts;
-DROP TABLE IF EXISTS Comments;
+-- Drop the existing tables one by one
 DROP TABLE IF EXISTS Likes;
+DROP TABLE IF EXISTS Comments;
+DROP TABLE IF EXISTS Posts;
+DROP TABLE IF EXISTS Users;
+
+-- Create the Users table
+CREATE TABLE Users (
+    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL,
+    UNIQUE(username)
+);
 
 -- Create the Posts table
 CREATE TABLE Posts (
-    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    post_id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
-    author TEXT NOT NULL,
+    user_id INTEGER NOT NULL,
     message TEXT NOT NULL,
     date TEXT NOT NULL,
-    like_count INTEGER DEFAULT 0
+    like_count INTEGER DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
-
 
 -- Create the Comments table
 CREATE TABLE Comments (
-    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    comment_id INTEGER PRIMARY KEY AUTOINCREMENT,
     post_id INTEGER NOT NULL,
-    author TEXT NOT NULL,
+    user_id INTEGER NOT NULL,
     message TEXT NOT NULL,
     date TEXT NOT NULL,
     parent_comment_id INTEGER,
-    FOREIGN KEY (post_id) REFERENCES Posts(id)
+    FOREIGN KEY (post_id) REFERENCES Posts(post_id),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
 
 -- Create the Likes table
 CREATE TABLE Likes (
-    id INTEGER PRIMARY KEY AUTO_INCREMENT,
+    like_id INTEGER PRIMARY KEY AUTOINCREMENT,
     post_id INTEGER NOT NULL,
-    author TEXT NOT NULL,
-    FOREIGN KEY (post_id) REFERENCES Posts(id)
+    user_id INTEGER NOT NULL,
+    FOREIGN KEY (post_id) REFERENCES Posts(post_id),
+    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    UNIQUE(post_id, user_id)
 );
 
--- Insert sample data into Posts with initial like counts
-INSERT INTO Posts (title, author, message, date, like_count) VALUES
-('First Post', 'John', 'This is my first post.', datetime('now'), 3),
-('Second Post', 'Jane', 'Hello, world!', datetime('now'), 5);
+-- Insert sample data into Users
+INSERT INTO Users (username) VALUES
+('User1'),
+('User2'),
+('User3'),
+('User4'),
+('Admin');
 
+-- Insert sample data into Posts
+INSERT INTO Posts (title, user_id, message, date, like_count) VALUES
+('First Post', 1, 'This is my first post.', '2023-09-10', 0),
+('Second Post', 2, 'Hello, world!', '2023-09-10', 0);
 
 -- Insert sample data into Comments
-INSERT INTO Comments (post_id, author, message, date, parent_comment_id) VALUES
-(1, 'Jane', 'Great post, John!', datetime('now'), NULL),
-(1, 'John', 'Thank you, Jane!', datetime('now'), 1),
-(2, 'Emily', 'Interesting!', datetime('now'), NULL);
-
--- Insert sample data into Likes
-INSERT INTO Likes (post_id, author) VALUES
-(1, 'Emily'),
-(2, 'John');
+INSERT INTO Comments (post_id, user_id, message, date) VALUES
+(1, 2, 'Great post, User1!', '2023-09-10'),
+(1, 1, 'Thank you, User2!', '2023-09-10'),
+(2, 3, 'Interesting!', '2023-09-10');

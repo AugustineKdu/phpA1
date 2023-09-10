@@ -31,6 +31,11 @@
             margin: 0 35px;
             font-size: 1.5rem;
         }
+        main {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
@@ -45,31 +50,16 @@
         </div>
     </header>
 
-    <div class="container-fluid">
-        <div class="row">
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-                <div class="position-sticky">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#">Dashboard</a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-
-            <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-                @yield('content')
-            </main>
-        </div>
-    </div>
+    <main role="main" class="col-md-12 px-md-4">
+        @yield('content')
+    </main>
 
     <footer class="footer mt-auto py-3 bg-dark">
-    <div class="container d-flex justify-content-between">
-        <span class="text-muted">@Created by Augustine Kim (s5125270)</span>
-        <a href="/admin" class="text-muted">Admin Portal</a>
-    </div>
-</footer>
-
+        <div class="container d-flex justify-content-between">
+            <span class="text-muted">@Created by Augustine Kim (s5125270)</span>
+            <a href="/admin" class="text-muted">Admin Portal</a>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

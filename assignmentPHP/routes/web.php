@@ -15,121 +15,155 @@ use Illuminate\Support\Facades\File;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+// Home Route
+
+
+
+// 홈 화면
 Route::get('/', function () {
-    $posts = DB::table('Posts')->select('id', 'title', 'author', 'message', 'date', 'like_count')->orderBy('date', 'desc')->get();
-    $comments = [];
-    foreach ($posts as $post) {
-        $comments[$post->id] = DB::table('Comments')->where('post_id', $post->id)->get();
-    }
-    return view('home', ['posts' => $posts, 'comments' => $comments]);
+    $posts = DB::table('Posts')
+        ->join('Users', 'Posts.user_id', '=', 'Users.user_id')
+        ->leftJoin('Comments', 'Posts.post_id', '=', 'Comments.post_id')
+        ->leftJoin('Likes', 'Posts.post_id', '=', 'Likes.post_id')
+        ->select('Posts.*', 'Users.username as author', DB::raw('count(distinct Comments.comment_id) as comment_count'), DB::raw('count(distinct Likes.like_id) as like_count'))
+        ->groupBy('Posts.post_id', 'Users.username', 'Posts.title', 'Posts.message', 'Posts.date', 'Posts.user_id')
+        ->orderBy('Posts.date', 'desc')
+        ->get();
+
+    return view('home', ['posts' => $posts]);
 });
 
 
-Route::post('/like/{post}', function ($postId) {
-    $post = DB::table('Posts')->where('id', $postId)->first();
-
-    if ($post) {
-        $newLikeCount = ($post->like_count ?? 0) + 1;
-        DB::table('Posts')->where('id', $postId)->update(['like_count' => $newLikeCount]);
-    }
-
-    return redirect()->back();
-});
-
-
-
-
-Route::post('/save-post', function (Request $request) {
-
-    $request->validate([
-        'title' => 'required|min:3',
-        'author' => 'required|alpha',
-        'message' => 'required|min:5',
-    ]);
-
-
+// 포스트 생성
+Route::post('/create-post', function (Request $request) {
     $title = $request->input('title');
-    $author = $request->input('author');
     $message = $request->input('message');
-    $date = now();
+    $username = $request->input('username');
 
+    // 유저 인증이 필요합니다.
+    $user = DB::table('Users')->where('username', $username)->first();
+    $user_id = $user->user_id ?? 1;
 
-    DB::insert('INSERT INTO Posts (title, author, message, date) VALUES (?, ?, ?, ?)', [$title, $author, $message, $date]);
+    DB::table('Posts')->insert([
+        'title' => $title,
+        'user_id' => $user_id,
+        'message' => $message,
+        'date' => now()
+    ]);
 
     return redirect('/');
 });
-Route::get('/create-post', function () {
-    return view('create_post')->with('status', 'Post created successfully!');
+
+// 포스트 상세 보기
+Route::get('/post/{post_id}', function ($post_id) {
+    $post = DB::table('Posts')
+        ->join('Users', 'Posts.user_id', '=', 'Users.user_id')
+        ->where('Posts.post_id', $post_id)
+        ->select('Posts.*', 'Users.username as author')
+        ->first();
+
+    $comments = DB::table('Comments')
+        ->join('Users', 'Comments.user_id', '=', 'Users.user_id')
+        ->where('Comments.post_id', $post_id)
+        ->select('Comments.*', 'Users.username as commenter')
+        ->get();
+
+    return view('post-detail', ['post' => $post, 'comments' => $comments]);
 });
 
-Route::get('/post/{id}', function ($id) {
-    $post = DB::table('Posts')->where('id', $id)->first();
-    $comments = DB::table('Comments')->where('post_id', $id)->get();
-    return view('post_detail', ['post' => $post, 'comments' => $comments]);
+// 좋아요 추가
+Route::post('/post/{post_id}/like', function (Request $request, $post_id) {
+    $username = $request->input('username');
+
+    // 유저 인증이 필요합니다.
+    $user = DB::table('Users')->where('username', $username)->first();
+    $user_id = $user->user_id ?? 1;
+
+    // 해당 포스트에 대해 이 유저가 이미 좋아요를 눌렀는지 확인
+    $existingLike = DB::table('Likes')
+        ->where('post_id', $post_id)
+        ->where('user_id', $user_id)
+        ->first();
+
+    if (!$existingLike) {
+        DB::table('Likes')->insert([
+            'post_id' => $post_id,
+            'user_id' => $user_id
+        ]);
+    }
+
+    return redirect("/post/{$post_id}");
 });
 
-Route::post('/add-comment/{id}', function ($id) {
-    $validated = request()->validate([
-        'author' => 'required',
-        'message' => 'required',
-    ]);
+// 코멘트 추가
+Route::post('/post/{post_id}/comment', function (Request $request, $post_id) {
+    $message = $request->input('message');
+    $username = $request->input('username');
+
+    // 유저 인증이 필요합니다.
+    $user = DB::table('Users')->where('username', $username)->first();
+    $user_id = $user->user_id ?? 1;
+
 
     DB::table('Comments')->insert([
-        'post_id' => $id,
-        'author' => $validated['author'],
-        'message' => $validated['message'],
-        'date' => now(),
+        'post_id' => $post_id,
+        'user_id' => $user_id,
+        'message' => $message,
+        'date' => now()
     ]);
 
-    return redirect("/post/{$id}");
+    return redirect("/post/{$post_id}");
 });
 
-Route::get('/search', function () {
-    return view('search');
+Route::get('/post/{post_id}', function ($post_id) {
+    $post = DB::table('Posts')
+        ->join('Users', 'Posts.user_id', '=', 'Users.user_id')
+        ->where('Posts.post_id', $post_id)
+        ->select('Posts.*', 'Users.username as author')
+        ->first();
+
+    $comments = DB::table('Comments')
+        ->join('Users', 'Comments.user_id', '=', 'Users.user_id')
+        ->where('Comments.post_id', $post_id)
+        ->select('Comments.*', 'Users.username as commenter')
+        ->get();
+
+    $comment_count = DB::table('Comments')
+        ->where('post_id', $post_id)
+        ->count();
+
+    $like_count = DB::table('Likes')
+        ->where('post_id', $post_id)
+        ->count();
+
+    if (!$post) {
+        return abort(404, 'Post not found');
+    }
+
+    return view('post-detail', [
+        'post' => $post,
+        'comments' => $comments,
+        'comment_count' => $comment_count,
+        'like_count' => $like_count
+    ]);
 });
 
-Route::get('/search_results', function (Request $request) {
+Route::get('/search', function (Request $request) {
     $query = $request->input('query');
 
-    // Search in the Posts table
-    $posts = DB::table('Posts')
-        ->where('title', 'LIKE', '%' . $query . '%')
-        ->orWhere('message', 'LIKE', '%' . $query . '%')
-        ->orWhere('author', 'LIKE', '%' . $query . '%')
+    $posts = DB::table('Posts')->where('title', 'LIKE', '%' . $query . '%')->get();
+    $users = DB::table('Users')->where('username', 'LIKE', '%' . $query . '%')->get();
+    $comments = DB::table('Comments')->where('message', 'LIKE', '%' . $query . '%')->get();
+    $likedPosts = DB::table('Likes')
+        ->join('Posts', 'Likes.post_id', '=', 'Posts.id')
+        ->where('Posts.title', 'LIKE', '%' . $query . '%')
+        ->select('Posts.title')
         ->get();
 
-    // Search in the Comments table
-    $comments = DB::table('Comments')
-        ->where('message', 'LIKE', '%' . $query . '%')
-        ->orWhere('author', 'LIKE', '%' . $query . '%')
-        ->get();
-
-    // Pass the search results to the view
-    return view('search_results', [
+    return view('search', [
         'posts' => $posts,
+        'users' => $users,
         'comments' => $comments,
+        'likedPosts' => $likedPosts
     ]);
-});
-
-
-Route::get('/test', function () {
-    $sqlFilePath = base_path('database/Create_table.sql');
-
-
-    if (File::exists($sqlFilePath)) {
-        $contents = File::get($sqlFilePath);
-        return response($contents, 200)
-            ->header('Content-Type', 'text/plain');
-    }
-
-    return response("File does not exist.", 404);
-});
-
-Route::get('/admin', function () {
-    $posts = DB::select('SELECT * FROM Posts');
-    $comments = [];
-    foreach ($posts as $post) {
-        $comments[$post->id] = DB::select('SELECT * FROM Comments WHERE post_id = ?', [$post->id]);
-    }
-    return view('admin', ['posts' => $posts, 'comments' => $comments]);
 });
