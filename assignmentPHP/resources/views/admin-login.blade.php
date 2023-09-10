@@ -1,3 +1,10 @@
+
+<!-- search.blade.php -->
+@extends('layouts.master')
+
+@section('navbar-title', 'Admin Dashboard')
+
+@section('content')
 <!-- 어드민 로그인 폼 -->
 <form method="POST" action="/admin-login">
     @csrf
@@ -9,3 +16,6 @@
 
     <button type="submit">Login</button>
 </form>
+
+
+@endsection

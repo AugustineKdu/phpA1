@@ -3,7 +3,6 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\File;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,12 +14,15 @@ use Illuminate\Support\Facades\File;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
 // Home Route
 
-
-// 홈 화면
+// Home screen
 Route::get('/', function () {
-    $posts = DB::select("SELECT Posts.*, Users.username as author, COUNT(DISTINCT Comments.comment_id) as comment_count, COUNT(DISTINCT Likes.like_id) as like_count
+    // Fetch all posts along with author information
+    $posts = DB::select("SELECT Posts.*, Users.username as author,
+                        COUNT(DISTINCT Comments.comment_id) as comment_count,
+                        COUNT(DISTINCT Likes.like_id) as like_count
                         FROM Posts
                         JOIN Users ON Posts.user_id = Users.user_id
                         LEFT JOIN Comments ON Posts.post_id = Comments.post_id
@@ -31,62 +33,80 @@ Route::get('/', function () {
     return view('home', ['posts' => $posts]);
 });
 
-// 포스트 생성
+
+// Section: Posts Management
+
+// Create a post
 Route::post('/create-post', function (Request $request) {
-    $title = $request->input('title');
-    $message = $request->input('message');
-    $username = $request->input('username');
+    // Input validation
+    $title = htmlentities($request->input('title'));
+    $message = htmlentities($request->input('message'));
+    $username = htmlentities($request->input('username'));
 
-    // 유저 인증이 필요합니다.
-    $users = DB::select("SELECT * FROM Users WHERE username = ?", [$username]);
-    $user = $users[0] ?? null;
-    $user_id = $user->user_id ?? 1;
+    if (empty($title) || empty($message) || empty($username)) {
+        return redirect('/')->with('error', 'All fields are required');
+    }
 
+    // Fetch user ID
+    $user = DB::select("SELECT * FROM Users WHERE username = ?", [$username]);
+    $user_id = $user[0]->user_id ?? 1;
+
+    // Insert the post
     DB::insert("INSERT INTO Posts (title, user_id, message, date) VALUES (?, ?, ?, ?)", [$title, $user_id, $message, now()]);
 
     return redirect('/');
 });
 
-// 좋아요 추가
+// Add a comment
+Route::post('/post/{post_id}/comment', function (Request $request, $post_id) {
+    // Input validation
+    $message = htmlentities($request->input('message'));
+    $username = htmlentities($request->input('username'));
+
+    if (empty($message) || empty($username)) {
+        return redirect("/post/{$post_id}")->with('error', 'All fields are required');
+    }
+
+    // Fetch user ID
+    $user = DB::table('Users')->where('username', $username)->first();
+
+    if ($user) {
+        $user_id = $user->user_id;
+
+        // Insert the comment
+        DB::table('Comments')->insert([
+            'post_id' => $post_id,
+            'user_id' => $user_id,
+            'message' => $message,
+            'date' => now()
+        ]);
+
+        return redirect("/post/{$post_id}");
+    } else {
+        return redirect("/post/{$post_id}")->with('error', 'User not found');
+    }
+});
+
+
+// Add a like
 Route::post('/post/{post_id}/like', function (Request $request, $post_id) {
-    $username = $request->input('username');
+    // Fetch user ID
+    $username = htmlentities($request->input('username'));
+    $user = DB::select("SELECT * FROM Users WHERE username = ?", [$username]);
+    $user_id = $user[0]->user_id ?? 1;
 
-    // 유저 인증이 필요합니다.
-    $users = DB::select("SELECT * FROM Users WHERE username = ?", [$username]);
-    $user = $users[0] ?? null;
-    $user_id = $user->user_id ?? 1;
-
-    // 해당 포스트에 대해 이 유저가 이미 좋아요를 눌렀는지 확인
-    $existingLikes = DB::select("SELECT * FROM Likes WHERE post_id = ? AND user_id = ?", [$post_id, $user_id]);
-    $existingLike = $existingLikes[0] ?? null;
+    // Check for existing like by the user on the post
+    $existingLike = DB::select("SELECT * FROM Likes WHERE post_id = ? AND user_id = ?", [$post_id, $user_id]);
 
     if (!$existingLike) {
+        // Insert the like
         DB::insert("INSERT INTO Likes (post_id, user_id) VALUES (?, ?)", [$post_id, $user_id]);
     }
 
     return redirect("/post/{$post_id}");
 });
 
-// 코멘트 추가
-Route::post('/post/{post_id}/comment', function (Request $request, $post_id) {
-    $message = $request->input('message');
-    $username = $request->input('username');
-
-    // 유저 인증이 필요합니다.
-    $user = DB::table('Users')->where('username', $username)->first();
-    $user_id = $user->user_id ?? 1;
-
-
-    DB::table('Comments')->insert([
-        'post_id' => $post_id,
-        'user_id' => $user_id,
-        'message' => $message,
-        'date' => now()
-    ]);
-
-    return redirect("/post/{$post_id}");
-});
-
+// Post detail page
 Route::get('/post/{post_id}', function ($post_id) {
     $post = DB::table('Posts')
         ->join('Users', 'Posts.user_id', '=', 'Users.user_id')
@@ -120,7 +140,7 @@ Route::get('/post/{post_id}', function ($post_id) {
     ]);
 });
 
-// 유저 기반 검색 기능
+// User search functionality
 Route::get('/search', function (Request $request) {
     $query = $request->input('query');
 
@@ -139,40 +159,39 @@ Route::get('/search', function (Request $request) {
     return view('search', ['query' => $query, 'users' => $users]);
 });
 
-
-// 유저 생성 폼
+// User creation form
 Route::get('/create-user', function () {
     return view('create-user');
 });
 
-// 유저 생성 처리
+// User creation processing
 Route::post('/create-user', function (Request $request) {
     $username = $request->input('username');
     $user_id = $request->input('user_id');
 
-    // 유저 중복 체크
+    // User duplication check
     $existingUser = DB::select("SELECT * FROM Users WHERE username = ? OR user_id = ?", [$username, $user_id]);
     if ($existingUser) {
         return redirect('/create-user')->withErrors(['Username or User ID already exists']);
     }
 
-    // 유저 생성
+    // Create user
     DB::insert("INSERT INTO Users (username, user_id) VALUES (?, ?)", [$username, $user_id]);
 
     return redirect('/')->with('message', 'User created successfully');
 });
 
-// Admin 로그인 페이지
+// Admin login page
 Route::get('/admin-login', function () {
     return view('admin-login');
 });
 
-// Admin 로그인 처리
+// Admin login processing
 Route::post('/admin-login', function (Request $request) {
     $username = $request->input('username');
-    $password = $request->input('password'); // 실제로는 암호화가 필요합니다.
+    $password = $request->input('password'); // In practice, encryption is needed.
 
-    // 가정: admin 아이디는 1, 이름은 'admin'
+    // Assumption: admin ID is 1, and the name is 'admin'.
     if ($username === 'admin' && $password === 'admin') {
         $request->session()->put('admin_id', 1);
         $request->session()->put('admin_username', 'admin');
@@ -182,7 +201,7 @@ Route::post('/admin-login', function (Request $request) {
     return redirect('/admin-login')->with('error', 'Invalid credentials');
 });
 
-// Admin 대시보드
+// Admin dashboard
 Route::get('/admin', function (Request $request) {
     $admin_id = $request->session()->get('admin_id', null);
     $admin_username = $request->session()->get('admin_username', null);
@@ -198,7 +217,7 @@ Route::get('/admin', function (Request $request) {
     return redirect('/admin-login');
 });
 
-// 삭제 라우트 예시
+// Delete routes example
 Route::post('/admin/delete-user/{user_id}', function ($user_id) {
     DB::delete("DELETE FROM Users WHERE user_id = ?", [$user_id]);
     return redirect('/admin');

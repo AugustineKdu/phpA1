@@ -3,17 +3,17 @@
 @section('title', 'Home Page')
 
 @section('content')
-    <div class="container mt-5">
+    <div class="container mt-5 bg-light">  <!-- 배경색을 light로 설정 -->
         <div class="row">
-            <!-- 왼쪽 60% 영역: 최근 포스트 -->
-            <div class="col-md-7">
-                <h2>Recent Posts</h2>
+            <!-- Left 60% section: Recent Posts -->
+            <div class="col-md-7 border-right" style="padding: 20px;">  <!-- 선으로 분리 -->
+                <h2 class="text-primary">Recent Posts</h2>  <!-- 글씨 크기 변경 -->
 
                 @foreach($posts as $post)
-    <div class="card mb-3">
-        <div class="card-body">
-            <h5 class="card-title"><a href="{{ url('/post/' . $post->post_id) }}">{{ $post->title }}</a></h5>
-                            <p class="card-text">{{ $post->message }}</p>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title"><a href="{{ url('/post/' . $post->post_id) }}">{{ $post->title }}</a></h5>
+                            <p class="card-text text-muted">{{ $post->message }}</p>  <!-- 글씨 크기 변경 -->
                             <p class="card-text">
                                 <small class="text-muted">Posted by {{ $post->author }} on {{ $post->date }}</small><br>
                                 <small class="text-muted">Comments: {{ $post->comment_count }} | Likes: {{ $post->like_count }}</small>
@@ -23,24 +23,24 @@
                 @endforeach
             </div>
 
-            <!-- 오른쪽 40% 영역: 새 포스트 입력 폼 -->
-            <div class="col-md-5">
-                <h2>Create New Post</h2>
+            <!-- Right 40% section: Create New Post Form -->
+            <div class="col-md-5" style="padding: 20px;">
+                <h2 class="text-success">Create New Post</h2>  <!-- 글씨 크기 변경 -->
                 <form action="/create-post" method="POST">
                     @csrf
                     <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control form-control-lg" id="username" name="username" required>  <!-- 폼 스타일 변경 -->
                     </div>
                     <div class="form-group">
-                        <label for="title">Title</label>
-                        <input type="text" class="form-control" id="title" name="title" required>
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control form-control-lg" id="title" name="title" required>  <!-- 폼 스타일 변경 -->
                     </div>
                     <div class="form-group">
-                        <label for="message">Message</label>
-                        <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+                        <label for="message" class="form-label">Message</label>
+                        <textarea class="form-control form-control-lg" id="message" name="message" rows="4" required></textarea>  <!-- 폼 스타일 변경 -->
                     </div>
-                    <button type="submit" class="btn btn-primary mt-2">Submit</button>
+                    <button type="submit" class="btn btn-primary mt-2 btn-lg">Submit</button>  <!-- 버튼 스타일 변경 -->
                 </form>
             </div>
         </div>

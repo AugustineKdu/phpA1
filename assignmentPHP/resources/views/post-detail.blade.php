@@ -1,6 +1,6 @@
 @extends('layouts.master')
 
-@section('title', 'Post Detail')
+@section('navbar-title', 'Post Detail')
 
 @section('content')
 <div class="container mt-5">

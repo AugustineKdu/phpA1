@@ -1,6 +1,6 @@
 @extends('layouts.master')
 
-@section('title', 'Search Results')
+@section('navbar-title', 'Search ')
 
 @section('content')
 <div class="container mt-5">

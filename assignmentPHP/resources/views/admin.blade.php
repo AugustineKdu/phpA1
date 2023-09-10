@@ -1,7 +1,7 @@
 <!-- 어드민 대시보드 -->
 @extends('layouts.master')
 
-@section('title', 'Admin Dashboard')
+@section('navbar-title', 'Admin Dashboard')
 
 @section('content')
 <div class="container mt-5">

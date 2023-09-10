@@ -1,6 +1,6 @@
 @extends('layouts.master')
 
-@section('title', 'Create User')
+@section('navbar-title', 'Create User')
 
 @section('content')
     <div class="container mt-5">

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>@yield('title')</title>
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -36,7 +37,7 @@
 <body>
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-dark">
-            <a class="navbar-brand" href="#">Home</a>
+            <a class="navbar-brand" href="#">@yield('navbar-title', 'Home')</a>
         </nav>
         <div class="sub-menu text-center">
             <a href="/">Home</a> |
@@ -47,15 +48,6 @@
 
     <div class="container-fluid">
         <div class="row">
-            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-                <div class="position-sticky">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#">Dashboard</a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
 
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
                 @yield('content')
