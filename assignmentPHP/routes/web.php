@@ -27,10 +27,15 @@ Route::get('/', function () {
 
 Route::post('/like/{post}', function ($postId) {
     $post = DB::table('Posts')->where('id', $postId)->first();
-    $newLikeCount = $post->like_count + 1;
-    DB::table('Posts')->where('id', $postId)->update(['like_count' => $newLikeCount]);
-    return redirect('/');
+
+    if ($post) {
+        $newLikeCount = ($post->like_count ?? 0) + 1;
+        DB::table('Posts')->where('id', $postId)->update(['like_count' => $newLikeCount]);
+    }
+
+    return redirect()->back();
 });
+
 
 
 
@@ -51,8 +56,12 @@ Route::post('/save-post', function (Request $request) {
 
     DB::insert('INSERT INTO Posts (title, author, message, date) VALUES (?, ?, ?, ?)', [$title, $author, $message, $date]);
 
-    return redirect('/')->with('status', 'Post created successfully!');
+    return redirect('/');
 });
+Route::get('/create-post', function () {
+    return view('create_post')->with('status', 'Post created successfully!');
+});
+
 Route::get('/post/{id}', function ($id) {
     $post = DB::table('Posts')->where('id', $id)->first();
     $comments = DB::table('Comments')->where('post_id', $id)->get();
@@ -75,6 +84,32 @@ Route::post('/add-comment/{id}', function ($id) {
     return redirect("/post/{$id}");
 });
 
+Route::get('/search', function () {
+    return view('search');
+});
+
+Route::get('/search_results', function (Request $request) {
+    $query = $request->input('query');
+
+    // Search in the Posts table
+    $posts = DB::table('Posts')
+        ->where('title', 'LIKE', '%' . $query . '%')
+        ->orWhere('message', 'LIKE', '%' . $query . '%')
+        ->orWhere('author', 'LIKE', '%' . $query . '%')
+        ->get();
+
+    // Search in the Comments table
+    $comments = DB::table('Comments')
+        ->where('message', 'LIKE', '%' . $query . '%')
+        ->orWhere('author', 'LIKE', '%' . $query . '%')
+        ->get();
+
+    // Pass the search results to the view
+    return view('search_results', [
+        'posts' => $posts,
+        'comments' => $comments,
+    ]);
+});
 
 
 Route::get('/test', function () {

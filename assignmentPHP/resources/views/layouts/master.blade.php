@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>@yield('title', 'Default Title')</title>
+    <title>@yield('title')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -40,7 +40,7 @@
         </nav>
         <div class="sub-menu text-center">
             <a href="/">Home</a> |
-            <a href="#">Login</a> |
+            <a href="/search_results">Search</a> |
             <a href="/create-post">Create Post</a>
         </div>
     </header>

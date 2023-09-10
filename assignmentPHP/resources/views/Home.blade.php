@@ -16,7 +16,10 @@
                             <p class="card-text"><small class="text-muted">Posted by {{ $post->author }} on {{ $post->date }}</small></p>
                             <p class="card-text">Total Comments: {{ count($comments[$post->id]) }}</p>
                             <!-- Here is where we display the like count -->
-                            <p class="card-text">Likes: {{ $post->like_count ?? '0' }}</p>
+                            <form action="/like/{{ $post->id }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-primary">Like</button>
+                            </form>
                         </div>
                     </div>
                 @endforeach

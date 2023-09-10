@@ -5,17 +5,18 @@ DROP TABLE IF EXISTS Likes;
 
 -- Create the Posts table
 CREATE TABLE Posts (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
     title TEXT NOT NULL,
     author TEXT NOT NULL,
     message TEXT NOT NULL,
     date TEXT NOT NULL,
-    like_count INTEGER DEFAULT 0  -- New column for like count
+    like_count INTEGER DEFAULT 0
 );
+
 
 -- Create the Comments table
 CREATE TABLE Comments (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
     post_id INTEGER NOT NULL,
     author TEXT NOT NULL,
     message TEXT NOT NULL,
@@ -26,7 +27,7 @@ CREATE TABLE Comments (
 
 -- Create the Likes table
 CREATE TABLE Likes (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id INTEGER PRIMARY KEY AUTO_INCREMENT,
     post_id INTEGER NOT NULL,
     author TEXT NOT NULL,
     FOREIGN KEY (post_id) REFERENCES Posts(id)

@@ -1,6 +1,8 @@
 @extends('layouts.master')
 
-@section('title', 'Admin Page')
+@section('title')
+    Admin Page
+@endsection
 
 @section('content')
     <h1>Admin Page</h1>
@@ -13,7 +15,7 @@
                 <th>Message</th>
                 <th>Date</th>
                 <th>Comments</th>
-                <th>Like count</th>
+                <th>Like Count</th>  <!-- New Column Header -->
             </tr>
         </thead>
         <tbody>
@@ -24,7 +26,6 @@
                 <td>{{ $post->author }}</td>
                 <td>{{ $post->message }}</td>
                 <td>{{ $post->date }}</td>
-
                 <td>
                     <ul>
                         @foreach ($comments[$post->id] as $comment)
@@ -32,7 +33,7 @@
                         @endforeach
                     </ul>
                 </td>
-
+                <td>{{ $post->like_count ?? '0' }}</td>  <!-- New Column Data -->
             </tr>
             @endforeach
         </tbody>
